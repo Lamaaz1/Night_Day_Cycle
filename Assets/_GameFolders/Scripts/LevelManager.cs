@@ -11,7 +11,7 @@ public class LevelManager : MonoBehaviour
     public Transform gridParent;
     public GridLayoutGroup gridLayoutGroup;
     public int count;
-    public float StartShowTime=2f;
+    public float StartShowTime = 2f;
     public List<Sprite> availableImages; // your list of possible images
     // Start is called before the first frame update
     void Start()
@@ -20,11 +20,11 @@ public class LevelManager : MonoBehaviour
     }
     public void init()
     {
-        for (int i = 0; i < levelToggles.Length; i++) 
+        for (int i = 0; i < levelToggles.Length; i++)
         {
             levelToggles[i].GetComponent<DificultyButton>().LevelIndex = i;
         }
-     
+
         LoadLevel();
     }
     public void LoadLevel()
@@ -68,7 +68,7 @@ public class LevelManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
     public void CountModify(int c)
     {
@@ -114,7 +114,7 @@ public class LevelManager : MonoBehaviour
         Root.instance.uiManager.ResetNumbers();
         AdjustGridLayout(count);
     }
- 
+
     void AdjustGridLayout(int totalCards)
     {
         List<(int columns, int rows)> possibleGrids = new List<(int columns, int rows)>();
@@ -189,21 +189,33 @@ public class LevelManager : MonoBehaviour
         // Step 2: Wait 1 second
         yield return new WaitForSeconds(0.3f);
 
-        // Step 3: Show all cards
-        foreach (Card card in gridParent.GetComponentsInChildren<Card>())
+        // Step 3: Shuffle list
+        List<Card> cardList = new List<Card>(gridParent.GetComponentsInChildren<Card>());
+        for (int i = 0; i < cardList.Count; i++)
         {
-            card.SetRevealed();
+            Card temp = cardList[i];
+            int randomIndex = Random.Range(i, cardList.Count);
+            cardList[i] = cardList[randomIndex];
+            cardList[randomIndex] = temp;
         }
 
-        // Step 4: Wait 2 seconds
+        // Step 4: Show cards one by one (random order)
+        foreach (Card card in cardList)
+        {
+            card.SetRevealed();
+            yield return new WaitForSeconds(0.05f);
+        }
+
+        // Step 5: Wait StartShowTime (player sees cards)
         yield return new WaitForSeconds(StartShowTime);
 
-        // Step 5: Hide all cards again — player can start
-        foreach (Card card in gridParent.GetComponentsInChildren<Card>())
+        // Step 6: Hide all cards again
+        foreach (Card card in cardList)
         {
             card.SetHidden();
         }
-        Root.instance.gameManager.StartPlay=true;
+
+        Root.instance.gameManager.StartPlay = true;
         Debug.Log("Player can start now!");
     }
 
