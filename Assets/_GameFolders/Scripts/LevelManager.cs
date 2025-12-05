@@ -5,22 +5,70 @@ using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
+    public Toggle[] levelToggles;
+    private int currentLevelIndex;
     public GameObject cardPrefab;
     public Transform gridParent;
     public GridLayoutGroup gridLayoutGroup;
     public int count;
-    public float StartShowTime = 2f;
+    public float StartShowTime=2f;
     public List<Sprite> availableImages; // your list of possible images
     // Start is called before the first frame update
     void Start()
     {
-
+        init();
     }
+    public void init()
+    {
+        for (int i = 0; i < levelToggles.Length; i++) 
+        {
+            levelToggles[i].GetComponent<DificultyButton>().LevelIndex = i;
+        }
+     
+        LoadLevel();
+    }
+    public void LoadLevel()
+    {
+        int currentLevel = PlayerPrefs.GetInt("CurrentLevel", 0);
 
+        // First reset all toggles
+        for (int i = 0; i < levelToggles.Length; i++)
+        {
+            levelToggles[i].isOn = false;
+        }
+
+        // Set correct toggle ON
+        levelToggles[currentLevel].isOn = true;
+        //levelToggles[currentLevel].GetComponent<DificultyButton>().LoadL();
+
+
+        // Force trigger event
+        levelToggles[currentLevel].onValueChanged.Invoke(true);
+    }
+    public void NextLevel()
+    {
+        if (PlayerPrefs.GetInt("CurrentLevel") < levelToggles.Length - 1)
+        {
+            // Increase level
+            int newLevel = PlayerPrefs.GetInt("CurrentLevel") + 1;
+            PlayerPrefs.SetInt("CurrentLevel", newLevel);
+            PlayerPrefs.Save();
+
+            // Reset all toggles
+            for (int i = 0; i < levelToggles.Length; i++)
+            {
+                levelToggles[i].isOn = false;
+            }
+
+            // Activate new level toggle
+            levelToggles[newLevel].isOn = true;
+            levelToggles[newLevel].onValueChanged.Invoke(true);  // Force trigger if needed
+        }
+    }
     // Update is called once per frame
     void Update()
     {
-
+        
     }
     public void CountModify(int c)
     {
@@ -66,7 +114,7 @@ public class LevelManager : MonoBehaviour
         Root.instance.uiManager.ResetNumbers();
         AdjustGridLayout(count);
     }
-
+ 
     void AdjustGridLayout(int totalCards)
     {
         List<(int columns, int rows)> possibleGrids = new List<(int columns, int rows)>();
@@ -150,12 +198,12 @@ public class LevelManager : MonoBehaviour
         // Step 4: Wait 2 seconds
         yield return new WaitForSeconds(StartShowTime);
 
-        // Step 5: Hide all cards again — player can start
+        // Step 5: Hide all cards again â€” player can start
         foreach (Card card in gridParent.GetComponentsInChildren<Card>())
         {
             card.SetHidden();
         }
-        Root.instance.gameManager.StartPlay = true;
+        Root.instance.gameManager.StartPlay=true;
         Debug.Log("Player can start now!");
     }
 

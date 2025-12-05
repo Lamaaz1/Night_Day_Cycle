@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public bool StartPlay = false;
+    public bool StartPlay=false;
     public List<Card> revealedCards = new List<Card>();
     public int totalPairs;
     public int matchedPairs;
@@ -26,6 +26,8 @@ public class GameManager : MonoBehaviour
 
         if (revealedCards[0].frontImage.sprite == revealedCards[1].frontImage.sprite)
         {
+            revealedCards[0].matched();
+            revealedCards[1].matched();
             // It's a match!
             matchedPairs++;
             Root.instance.uiManager.AddMatch();
@@ -36,19 +38,21 @@ public class GameManager : MonoBehaviour
             if (matchedPairs >= totalPairs)
             {
                 Debug.Log("YOU WIN!");
-                // You can show win panel, animation, sound, etc.
+                Root.instance.uiManager.WinPanel.ShowWinPanel();
+                Root.instance.levelManager.NextLevel();
+                // show win panel, animation, sound, etc.
             }
         }
         else
         {
-            // Not a match — flip both back
+            // Not a match â€” flip both back
             revealedCards[0].SetHidden();
             revealedCards[1].SetHidden();
         }
 
         revealedCards.Clear();
     }
-    public void UpdateCards(int _total, int _matched)
+    public void UpdateCards(int _total,int _matched)
     {
         totalPairs = _total / 2;
         matchedPairs = _matched;
