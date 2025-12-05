@@ -29,8 +29,12 @@ public class Card : MonoBehaviour
 
     public void SetRevealed()
     {
-        Root.instance.soundManager.PlayFlipSound();
-        StartCoroutine(FlipCoroutine());
+        if(!Mtched)
+        {
+            Root.instance.soundManager.PlayFlipSound();
+            StartCoroutine(FlipCoroutine());
+        }
+       
 
     }
     IEnumerator FlipCoroutine()
@@ -80,7 +84,7 @@ public class Card : MonoBehaviour
         //addTurn
         Root.instance.uiManager.AddTurn();
     }
-
+    bool Mtched=false;
 
     public void matched()
     {
@@ -88,6 +92,7 @@ public class Card : MonoBehaviour
         {
             frontImage.gameObject.SetActive(false);
             GetComponent<Image>().enabled = false;
+            Mtched = true;
         });
 
     }
